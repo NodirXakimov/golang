@@ -1,15 +1,8 @@
 package main
 
-import "fmt"
-
-type Contact struct {
-	ID        int
-	FirstName string
-	LastName  string
-	Phone     string
-	Email     string
-	Position  string
-}
+import (
+	"fmt"
+)
 
 type Task struct {
 	ID        int
@@ -21,10 +14,15 @@ type Task struct {
 	DueDate   string
 }
 
-var contacts []Contact
 var tasks []Task
 
 func main() {
 	fmt.Println("Hello World!")
 	fmt.Println("Do you check your progress")
+
+	// Init Router
+	// r := mux.NewRouter()
+
+	// Route Handlers / Endpoints
+	// r.HandleFunc("api/")
 }
