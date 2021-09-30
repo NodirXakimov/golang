@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 )
 
 type bill struct {
@@ -48,21 +45,4 @@ func (b bill) format() string {
 	// total
 	fs += fmt.Sprintf("%-25v ...$%v\n", "Total:", total+b.tip)
 	return fs
-}
-
-// Create a bill
-func createBill() bill {
-	reader := bufio.NewReader(os.Stdin)
-
-	name, _ := getInput("Create new bill name: ", reader)
-	b := newBill(name)
-	fmt.Println("Created bill name: ", b.name)
-	return b
-}
-
-// Get users input
-func getInput(prompt string, r *bufio.Reader) (string, error) {
-	fmt.Print(prompt)
-	input, err := r.ReadString('\n')
-	return strings.TrimSpace(input), err
 }
