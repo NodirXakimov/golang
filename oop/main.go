@@ -17,7 +17,7 @@ func getInput(prompt string, r *bufio.Reader) (string, error) {
 
 func promptOptions() {
 	reader := bufio.NewReader(os.Stdin)
-	opt, _ := getInput("Choose option: (a - add item, t-task list, x - exit): ", reader)
+	opt, _ := getInput("Choose option: (a - add task, t-task list, x - exit): ", reader)
 	switch opt {
 	case "a":
 		fmt.Println("You chose a")
@@ -41,11 +41,11 @@ func showTaskList() {
 
 func main() {
 	director := Director{"Main director"}
-	id, err := director.giveTask("Do some stuff")
-	id1, err1 := director.giveTask("Make a connection with database")
-	fmt.Println(id, err)
-	fmt.Println(id1, err1)
-	fmt.Println(taskList)
+	director.giveTask("Do some stuff")
+	director.giveTask("Make a connection with database")
+	// fmt.Println(taskList)
+	developer := Developer{"Nodir"}
+	developer.develop(81, "dev")
 	promptOptions()
 	// fmt.Println(task.Deadline.Format("2006-01-02 15:04:05"))
 }
