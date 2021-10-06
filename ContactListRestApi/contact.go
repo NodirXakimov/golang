@@ -2,7 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 
@@ -22,8 +23,9 @@ type Contact struct {
 var contacts []Contact
 
 // Get all contacts
-func getContacts() []Contact {
-	return contacts
+func getContacts(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(contacts)
 }
 
 // Get single contact
@@ -41,11 +43,13 @@ func getContact(w http.ResponseWriter, r *http.Request) {
 }
 
 // Create new contact
-func (contact *Contact) createContact() (c Contact, err error) {
-	c = *contact
-	c.ID = strconv.Itoa(len(contacts) + 1) // Mock ID - not safe
-	contacts = append(contacts, c)
-	return
+func createContact(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var contact Contact
+	_ = json.NewDecoder(r.Body).Decode(&contact)
+	contact.ID = strconv.Itoa(rand.Intn(100000)) // Mock ID - not safe
+	contacts = append(contacts, contact)
+	json.NewEncoder(w).Encode(contact)
 }
 
 // Update a contact
@@ -81,22 +85,20 @@ func deleteContact(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
+	// Init Router
+	r := mux.NewRouter()
+
 	// Mock data
 	contacts = append(contacts,
 		Contact{"1", "Nodir", "Xakimov", "+998999905518", "nodirxakimov@yandex.ru", "Go developer"},
 		Contact{"2", "Adham", "Xakimov", "+998997401520", "adhamxakimov@gmail.com", "Project manager"},
 	)
 
-	// Getting all contacts
-	fmt.Println(getContacts())
-
-	// Creating new contact
-	contact := Contact{
-		FirstName: "Xasan",
-		LastName:  "Xakimov",
-		Phone:     "+998977775544",
-		Email:     "xasanxakimov@gmail.com",
-		Position:  "Investor",
-	}
-	fmt.Println(contact.createContact())
+	// Route Handlers / Endpoints
+	r.HandleFunc("/api/contacts", getContacts).Methods("GET")
+	r.HandleFunc("/api/contacts/{id}", getContact).Methods("GET")
+	r.HandleFunc("/api/contacts", createContact).Methods("POST")
+	r.HandleFunc("/api/contacts/{id}", updateContact).Methods("PUT")
+	r.HandleFunc("/api/contacts/{id}", deleteContact).Methods("DELETE")
+	log.Fatal(http.ListenAndServe(":8008", r))
 }
