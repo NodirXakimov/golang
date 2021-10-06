@@ -27,17 +27,14 @@ func getContacts() []Contact {
 }
 
 // Get single contact
-func getContact(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r) // Get params
-	// Loop through contacts and find by id
-	for _, contact := range contacts {
-		if contact.ID == params["id"] {
-			json.NewEncoder(w).Encode(contact)
-			return
-		}
-	}
-	json.NewEncoder(w).Encode(&Contact{})
+func getContact(id int) {
+	// // Loop through contacts and find by id
+	// for _, contact := range contacts {
+	// 	if contact.ID == params["id"] {
+	// 		json.NewEncoder(w).Encode(contact)
+	// 		return
+	// 	}
+	// }
 }
 
 // Create new contact
