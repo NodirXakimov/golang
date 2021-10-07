@@ -1,12 +1,9 @@
 package main
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
-	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 // Contact struct (Model)
@@ -19,7 +16,10 @@ type Contact struct {
 	Position  string `json:"position"`
 }
 
-var contacts []Contact
+var contacts = []Contact{
+	{"1", "Nodir", "Xakimov", "+998999905518", "nodirxakimov@yandex.ru", "Go developer"},
+	{"2", "Adham", "Xakimov", "+998997401520", "adhamxakimov@gmail.com", "Project manager"},
+}
 
 // Get all contacts
 func getContacts() []Contact {
@@ -27,14 +27,14 @@ func getContacts() []Contact {
 }
 
 // Get single contact
-func getContact(id int) {
+func getContact(id int) (c Contact, err error) {
 	// // Loop through contacts and find by id
-	// for _, contact := range contacts {
-	// 	if contact.ID == params["id"] {
-	// 		json.NewEncoder(w).Encode(contact)
-	// 		return
-	// 	}
-	// }
+	for _, c := range contacts {
+		if c.ID == strconv.Itoa(id) {
+			return c, nil
+		}
+	}
+	return Contact{}, errors.New("Contact not found")
 }
 
 // Create new contact
@@ -46,43 +46,30 @@ func (contact *Contact) createContact() (c Contact, err error) {
 }
 
 // Update a contact
-func updateContact(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-	for index, contact := range contacts {
-		if contact.ID == params["id"] {
+func updateContact(id int, contact Contact) (Contact, error) {
+	for index, c := range contacts {
+		if c.ID == strconv.Itoa(id) {
 			contacts = append(contacts[:index], contacts[index+1:]...)
-			var contact Contact
-			_ = json.NewDecoder(r.Body).Decode(&contact)
-			contact.ID = params["id"] // Mock ID - not safe
+			contact.ID = strconv.Itoa(id)
 			contacts = append(contacts, contact)
-			json.NewEncoder(w).Encode(contact)
-			return
+			return contact, nil
 		}
 	}
-	json.NewEncoder(w).Encode(contacts)
+	return Contact{}, errors.New("Contact not found with this id")
 }
 
 // Delete a contact
-func deleteContact(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
+func deleteContact(id int) error {
 	for index, contact := range contacts {
-		if contact.ID == params["id"] {
+		if contact.ID == strconv.Itoa(id) {
 			contacts = append(contacts[:index], contacts[index+1:]...)
-			break
+			return nil
 		}
 	}
-	json.NewEncoder(w).Encode(contacts)
+	return errors.New("Contact not found")
 }
 
 func main() {
-
-	// Mock data
-	contacts = append(contacts,
-		Contact{"1", "Nodir", "Xakimov", "+998999905518", "nodirxakimov@yandex.ru", "Go developer"},
-		Contact{"2", "Adham", "Xakimov", "+998997401520", "adhamxakimov@gmail.com", "Project manager"},
-	)
 
 	// Getting all contacts
 	fmt.Println(getContacts())
@@ -96,4 +83,15 @@ func main() {
 		Position:  "Investor",
 	}
 	fmt.Println(contact.createContact())
+	fmt.Println(getContact(3))
+	c, er := updateContact(3, Contact{
+		FirstName: "Xusan",
+		LastName:  "Xakimov",
+		Phone:     "+998977775544",
+		Email:     "xusanxakimov@gmail.com",
+		Position:  "Investor",
+	})
+	fmt.Println(c, er)
+	deleteContact(2)
+	fmt.Println(getContacts())
 }
