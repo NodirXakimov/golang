@@ -30,7 +30,7 @@ func Connect() *sqlx.DB {
 	if err != nil {
 		log.Fatalln(err)
 	} else {
-		fmt.Println("Successfully connected to Database !!!")
+		// fmt.Println("Successfully connected to Database !!!")
 	}
 	return db
 }

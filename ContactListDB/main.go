@@ -5,6 +5,7 @@ import (
 	"golang/ContactListDB/config"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -69,6 +70,24 @@ func createContact(c *gin.Context) {
 
 }
 
+// Deleting item
+
+func deleteContact(c *gin.Context) {
+	db := config.Connect()
+	id, errStr := strconv.Atoi(c.Param("id"))
+	if errStr != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "Only numbers allowed to parameters"})
+		return
+	}
+	var returnedId int
+	db.QueryRow("DELETE FROM contacts WHERE id = $1 RETURNING id", id).Scan(&returnedId)
+	if id == returnedId {
+		c.IndentedJSON(http.StatusAccepted, gin.H{"message": "Deleted"})
+		return
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Item not found"})
+}
+
 func main() {
 
 	router := gin.Default()
@@ -76,7 +95,7 @@ func main() {
 	router.POST("/api/contacts", createContact)
 	router.GET("/api/contacts/:id", getContact)
 	// router.PUT("/api/tasks/:id", updateTask)
-	// router.DELETE("/api/tasks/:id", deleteTask)
+	router.DELETE("/api/contacts/:id", deleteContact)
 
 	log.Fatal(router.Run(":1212"))
 }
